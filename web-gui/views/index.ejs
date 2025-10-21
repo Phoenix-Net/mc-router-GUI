@@ -1,42 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MC-Router GUI</title>
     <link href="/css/output.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='80' height='80' x='10' y='10' rx='8' fill='%2300AA00'/></svg>">
 </head>
 
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-200">
     <!-- Header -->
-    <header class="bg-minecraft-dark text-white shadow-lg">
+    <header class="bg-minecraft-dark dark:bg-gray-800 text-white shadow-lg">
         <div class="container mx-auto px-4 py-6">
-            <h1 class="text-3xl font-bold">🎮 MC-Router GUI</h1>
-            <p class="text-gray-300 mt-2">Manage your Minecraft server routing configuration</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold">MC-Router GUI</h1>
+                    <p class="text-gray-300 dark:text-gray-400 mt-2">Manage your Minecraft server routing configuration
+                    </p>
+                </div>
+                <button id="themeToggle"
+                    class="px-4 py-2 rounded-lg bg-gray-700 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]">
+                    <i id="themeIcon" class="mdi mdi-white-balance-sunny text-lg"></i>
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
         <!-- Status Bar -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-8">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center">
                         <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                        <span class="text-sm text-gray-600">Router Status: Active</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Router Status: Active</span>
                     </div>
-                    <div class="text-sm text-gray-600">
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
                         Total Mappings: <span class="font-semibold">
                             <%= mappings.length %>
                         </span>
                     </div>
                 </div>
                 <button onclick="location.reload()" class="btn-secondary text-sm">
-                    🔄 Refresh
+                    Refresh
                 </button>
             </div>
         </div>
@@ -44,44 +54,46 @@
         <!-- Server Mappings Section -->
         <section class="mb-8">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Server Mappings</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Server Mappings</h2>
                 <button id="addMappingBtn" class="btn-primary">
-                    ➕ Add Mapping
+                    + Add Mapping
                 </button>
             </div>
 
             <div id="mappingsContainer" class="grid gap-4">
                 <% if (mappings.length===0) { %>
                     <div class="card text-center py-8">
-                        <p class="text-gray-500 text-lg">No server mappings configured</p>
-                        <p class="text-gray-400 mt-2">Click "Add Mapping" to create your first server route</p>
+                        <p class="text-gray-500 dark:text-gray-400 text-lg">No server mappings configured</p>
+                        <p class="text-gray-400 dark:text-gray-500 mt-2">Click "Add Mapping" to create your first server
+                            route</p>
                     </div>
                     <% } else { %>
                         <% mappings.forEach(mapping=> { %>
                             <div class="card">
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
-                                        <h3 class="text-lg font-semibold text-gray-900">
-                                            <%= mapping.hostname %>
-                                                <% if (mapping.is_default) { %>
-                                                    <span
-                                                        class="ml-2 px-2 py-1 bg-minecraft-green text-white text-xs rounded">DEFAULT</span>
-                                                    <% } %>
-                                        </h3>
-                                        <p class="text-gray-600 mt-1">→ <%= mapping.backend %>
-                                        </p>
-                                        <p class="text-sm text-gray-500 mt-2">
-                                            Created: <%= new Date(mapping.created_at).toLocaleDateString() %>
-                                        </p>
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white"></h3>
+                                        <%= mapping.hostname %>
+                                            <% if (mapping.is_default) { %>
+                                                <span
+                                                    class="ml-2 px-2 py-1 bg-minecraft-green text-white text-xs rounded">DEFAULT</span>
+                                                <% } %>
+                                                    </h3>
+                                                    <p class="text-gray-600 dark:text-gray-300 mt-1">→ <%=
+                                                            mapping.backend %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2"></p>
+                                                    Created: <%= new Date(mapping.created_at).toLocaleDateString() %>
+                                                        </p>
                                     </div>
                                     <div class="flex space-x-2">
                                         <button data-action="edit" data-mapping-hostname="<%= mapping.hostname %>"
                                             class="btn-secondary text-sm">
-                                            ✏️ Edit
+                                            Edit
                                         </button>
                                         <button data-action="delete" data-mapping-hostname="<%= mapping.hostname %>"
                                             class="btn-danger text-sm">
-                                            🗑️ Delete
+                                            Delete
                                         </button>
                                     </div>
                                 </div>
@@ -90,49 +102,22 @@
                                 <% } %>
             </div>
         </section>
-
-        <!-- Router Info Section -->
-        <section>
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Router Information</h2>
-            
-            <div class="card">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">API Endpoints</h3>
-                        <ul class="text-sm text-gray-600 space-y-1"></ul>
-                            <li><code>GET /routes</code> - List all routes</li>
-                            <li><code>POST /routes</code> - Create new route</li>
-                            <li><code>DELETE /routes/{hostname}</code> - Delete route</li>
-                            <li><code>POST /defaultRoute</code> - Set default route</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Features</h3>
-                        <ul class="text-sm text-gray-600 space-y-1"></ul>
-                    </div>  <li>✅ Dynamic route management</li>
-                            <li>✅ Default server routing</li>
-                            <li>✅ Real-time updates</li>
-                            <li>✅ REST API integration</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Add Mapping Modal -->
     <div id="addMappingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Add Server Mapping</h3>
-                <button data-modal-close="addMappingModal" class="text-gray-400 hover:text-gray-600">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Server Mapping</h3>
+                <button data-modal-close="addMappingModal"
+                    class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 text-xl font-light"></button>
                     ✕
                 </button>
             </div>
 
             <form id="addMappingForm">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Hostname
                     </label>
                     <input type="text" name="hostname" placeholder="e.g., vanilla.example.com" class="input-field"
@@ -140,7 +125,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Backend Server
                     </label>
                     <input type="text" name="backend" placeholder="e.g., minecraft-server:25565" class="input-field"
@@ -150,7 +135,7 @@
                 <div class="mb-6">
                     <label class="flex items-center">
                         <input type="checkbox" name="isDefault" class="mr-2">
-                        <span class="text-sm text-gray-700">Set as default server</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Set as default server</span>
                     </label>
                 </div>
 
@@ -165,6 +150,23 @@
             </form>
         </div>
     </div>
+
+    <!-- Initialize dark mode immediately -->
+    <script>
+        // Initialize dark mode before main script loads
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+
+            // Default to dark mode if no preference is saved
+            if (savedTheme !== 'light') {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+            }
+        })();
+    </script>
 
     <!-- Scripts -->
     <script type="module" src="/js/main.js"></script>

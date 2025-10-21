@@ -10,6 +10,7 @@ class MCRouterGUI {
   }
 
   private async init(): Promise<void> {
+    this.initializeTheme();
     await this.loadData();
     this.setupEventListeners();
     this.renderMappings();
@@ -51,12 +52,18 @@ class MCRouterGUI {
       addMappingBtn.addEventListener('click', () => this.openModal('addMappingModal'));
     }
 
+    // Theme toggle button
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', this.toggleTheme.bind(this));
+    }
+
     // Event delegation for mapping actions (edit/delete buttons)
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
       const action = target.getAttribute('data-action');
       const mappingHostname = target.getAttribute('data-mapping-hostname');
-      
+
       if (action && mappingHostname) {
         if (action === 'edit') {
           this.editMapping(mappingHostname);
@@ -69,10 +76,10 @@ class MCRouterGUI {
 
   private async handleAddMapping(event: Event): Promise<void> {
     event.preventDefault();
-    
+
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
-    
+
     const hostname = formData.get('hostname') as string;
     const backend = formData.get('backend') as string;
     const isDefault = formData.get('isDefault') === 'on';
@@ -83,7 +90,7 @@ class MCRouterGUI {
     }
 
     const response = await api.addMapping(hostname, backend, isDefault);
-    
+
     if (response.error) {
       this.showNotification(response.error, 'error');
     } else {
@@ -101,7 +108,7 @@ class MCRouterGUI {
     }
 
     const response = await api.deleteMapping(hostname);
-    
+
     if (response.error) {
       this.showNotification(response.error, 'error');
     } else {
@@ -179,11 +186,10 @@ class MCRouterGUI {
 
   private showNotification(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
-      type === 'success' ? 'bg-green-500 text-white' :
+    notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${type === 'success' ? 'bg-green-500 text-white' :
       type === 'error' ? 'bg-red-500 text-white' :
-      'bg-blue-500 text-white'
-    }`;
+        'bg-blue-500 text-white'
+      }`;
     notification.textContent = message;
 
     document.body.appendChild(notification);
@@ -199,6 +205,45 @@ class MCRouterGUI {
     return div.innerHTML;
   }
 
+  private toggleTheme(): void {
+    const html = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      if (themeIcon) {
+        themeIcon.className = 'mdi mdi-moon-waning-crescent text-base';
+      }
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.classList.add('dark');
+      if (themeIcon) {
+        themeIcon.className = 'mdi mdi-white-balance-sunny text-base';
+      }
+      localStorage.setItem('theme', 'dark');
+    }
+  }
+
+  private initializeTheme(): void {
+    const savedTheme = localStorage.getItem('theme');
+    const html = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+
+    // Default to dark mode
+    if (savedTheme === 'light') {
+      html.classList.remove('dark');
+      if (themeIcon) {
+        themeIcon.className = 'mdi mdi-moon-waning-crescent text-base';
+      }
+    } else {
+      html.classList.add('dark');
+      if (themeIcon) {
+        themeIcon.className = 'mdi mdi-white-balance-sunny text-base';
+      }
+      localStorage.setItem('theme', 'dark');
+    }
+  }
+
   // Public methods for global access
   public async editMapping(hostname: string): Promise<void> {
     const mapping = this.mappings.find(m => m.hostname === hostname);
@@ -207,10 +252,10 @@ class MCRouterGUI {
     // For now, just show an alert. You could implement a proper edit modal
     const newHostname = prompt('Enter new hostname:', mapping.hostname);
     const newBackend = prompt('Enter new backend:', mapping.backend);
-    
+
     if (newHostname && newBackend) {
       const response = await api.updateMapping(hostname, newHostname, newBackend, mapping.is_default);
-      
+
       if (response.error) {
         this.showNotification(response.error, 'error');
       } else {

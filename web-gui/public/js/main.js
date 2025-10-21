@@ -6,6 +6,7 @@ class MCRouterGUI {
         this.init();
     }
     async init() {
+        this.initializeTheme();
         await this.loadData();
         this.setupEventListeners();
         this.renderMappings();
@@ -41,6 +42,11 @@ class MCRouterGUI {
         const addMappingBtn = document.getElementById('addMappingBtn');
         if (addMappingBtn) {
             addMappingBtn.addEventListener('click', () => this.openModal('addMappingModal'));
+        }
+        // Theme toggle button
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', this.toggleTheme.bind(this));
         }
         // Event delegation for mapping actions (edit/delete buttons)
         document.addEventListener('click', (event) => {
@@ -176,6 +182,42 @@ class MCRouterGUI {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    toggleTheme() {
+        const html = document.documentElement;
+        const themeIcon = document.getElementById('themeIcon');
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            if (themeIcon) {
+                themeIcon.className = 'mdi mdi-moon-waning-crescent text-base';
+            }
+            localStorage.setItem('theme', 'light');
+        } else {
+            html.classList.add('dark');
+            if (themeIcon) {
+                themeIcon.className = 'mdi mdi-white-balance-sunny text-base';
+            }
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+    initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const html = document.documentElement;
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Default to dark mode
+        if (savedTheme === 'light') {
+            html.classList.remove('dark');
+            if (themeIcon) {
+                themeIcon.className = 'mdi mdi-moon-waning-crescent text-base';
+            }
+        } else {
+            html.classList.add('dark');
+            if (themeIcon) {
+                themeIcon.className = 'mdi mdi-white-balance-sunny text-base';
+            }
+            localStorage.setItem('theme', 'dark');
+        }
     }
     // Public methods for global access
     async editMapping(hostname) {
