@@ -1,0 +1,71 @@
+# MC-Router with Web GUI and Example Servers
+# This runs MC-Router + Web GUI + example Minecraft servers with auto-discovery
+#
+# Services provided:
+# - MC-Router: localhost:25565 (Minecraft connections)
+# - Web GUI: http://localhost:3000 (Management interface)  
+# - API: http://localhost:8080 (REST API)
+# - Vanilla Server: localhost:25566 (auto-discovered as vanilla.example.com)
+# - Paper Server: localhost:25567 (auto-discovered as paper.example.com)
+#
+# Usage: docker-compose -f docker-compose.gui.yml up -d
+
+version: '3.8'
+
+services:
+  mc-router-with-gui:
+    build:
+      context: .
+      dockerfile: web-gui/Dockerfile.integrated
+    # This container runs BOTH mc-router AND the web GUI
+    # MC-Router will auto-discover the Minecraft servers below using Docker labels
+    network_mode: host
+    volumes:
+      - mc-router-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # For Docker service discovery
+    environment:
+      - GUI_PORT=3000                 # Web GUI port
+      - PORT=25565                    # MC-Router Minecraft port
+      - API_BINDING=0.0.0.0:8080      # MC-Router API port
+      - MC_ROUTER_API=http://localhost:8080
+      - IN_DOCKER=true                # Enable Docker service discovery
+      - DEBUG=false
+      - CONNECTION_RATE_LIMIT=1
+    restart: unless-stopped
+
+  # Example Minecraft servers - these will be auto-discovered by mc-router
+  # Players connect to vanilla.example.com:25565 and mc-router routes to localhost:25566
+  vanilla:
+    image: itzg/minecraft-server
+    network_mode: host
+    environment:
+      EULA: "TRUE"
+      VERSION: "1.20.1"
+      SERVER_PORT: 25566  # Use different port to avoid conflicts with mc-router
+    labels:
+      mc-router.host: "vanilla.example.com"  # Hostname players use to connect
+      mc-router.port: "25566"                # Actual server port
+    volumes:
+      - vanilla-data:/data
+    restart: unless-stopped
+
+  # Players connect to paper.example.com:25565 and mc-router routes to localhost:25567
+  paper:
+    image: itzg/minecraft-server
+    network_mode: host
+    environment:
+      EULA: "TRUE"
+      TYPE: PAPER
+      VERSION: "1.20.1"
+      SERVER_PORT: 25567  # Use different port to avoid conflicts with mc-router
+    labels:
+      mc-router.host: "paper.example.com"    # Hostname players use to connect
+      mc-router.port: "25567"                # Actual server port
+    volumes:
+      - paper-data:/data
+    restart: unless-stopped
+
+volumes:
+  mc-router-data:
+  vanilla-data:
+  paper-data:

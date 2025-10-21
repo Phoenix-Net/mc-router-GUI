@@ -1,0 +1,49 @@
+# Multi-stage build for mc-router with web GUI
+FROM node:18-alpine AS web-builder
+
+WORKDIR /web-gui
+COPY web-gui/package*.json ./
+RUN npm ci --only=production
+
+COPY web-gui/ ./
+RUN npm run build && npm run build-css-prod
+
+# Go builder stage
+FROM golang:1.21 AS go-builder
+
+WORKDIR /build
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+RUN CGO_ENABLED=0 go build -buildvcs=false ./cmd/mc-router
+
+# Final stage
+FROM alpine:latest
+
+# Install Node.js and ca-certificates
+RUN apk add --no-cache nodejs npm ca-certificates
+
+WORKDIR /app
+
+# Copy mc-router binary
+COPY --from=go-builder /build/mc-router /usr/local/bin/mc-router
+
+# Copy web GUI
+COPY --from=web-builder /web-gui/dist ./web-gui/dist
+COPY --from=web-builder /web-gui/views ./web-gui/views
+COPY --from=web-builder /web-gui/public ./web-gui/public
+COPY --from=web-builder /web-gui/package*.json ./web-gui/
+COPY --from=web-builder /web-gui/node_modules ./web-gui/node_modules
+
+# Create startup script
+COPY web-gui/start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Set environment variables
+ENV GUI_PORT=3000
+ENV PORT=25565
+ENV API_BINDING=0.0.0.0:8080
+ENV MC_ROUTER_API=http://localhost:8080
+
+ENTRYPOINT ["/start.sh"]

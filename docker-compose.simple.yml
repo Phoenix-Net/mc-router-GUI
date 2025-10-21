@@ -1,0 +1,34 @@
+# MC-Router with Web GUI - Simple Deployment
+# This runs both MC-Router and the Web GUI in a single container
+# 
+# Services provided:
+# - MC-Router: localhost:25565 (Minecraft connections)
+# - Web GUI: http://localhost:3000 (Management interface)
+# - API: http://localhost:8080 (REST API)
+#
+# Usage: docker-compose -f docker-compose.simple.yml up -d
+
+version: '3.8'
+
+services:
+  mc-router-with-gui:
+    build:
+      context: .
+      dockerfile: web-gui/Dockerfile.integrated
+    # Use host networking for better performance and simplified configuration
+    # This container runs BOTH mc-router AND the web GUI
+    # Services will be available directly on host ports: 25565 (Minecraft), 3000 (GUI), 8080 (API)
+    network_mode: host
+    environment:
+      - PORT=25565                    # MC-Router Minecraft port
+      - GUI_PORT=3000                 # Web GUI port
+      - API_BINDING=0.0.0.0:8080      # MC-Router API port
+      - MC_ROUTER_API=http://localhost:8080
+      - DEBUG=false
+      - CONNECTION_RATE_LIMIT=1
+      # Example mappings (optional) - uncomment and modify as needed
+      # - MAPPING=vanilla.example.com=localhost:25566,forge.example.com=localhost:25567
+      # - DEFAULT=localhost:25566
+    volumes:
+      - ./web-gui/data:/data
+    restart: unless-stopped

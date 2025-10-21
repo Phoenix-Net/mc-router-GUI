@@ -7,3 +7,9 @@
 /dist/
 /*.private.env.json
 /kustomization.yml
+
+# Web GUI dependencies and build artifacts
+/web-gui/node_modules/
+/web-gui/dist/
+/web-gui/data/
+/web-gui/public/css/output.css
