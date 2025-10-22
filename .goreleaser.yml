@@ -40,7 +40,7 @@ dockers:
   - image_templates:
       - "phoenixsheppy/mc-router-gui:{{ .Version }}-amd64"
       - "phoenixsheppy/mc-router-gui:latest-amd64"
-    dockerfile: Dockerfile.release
+    dockerfile: Dockerfile.goreleaser
     ids:
       - mc-router-GUI
     goarch: amd64
@@ -50,10 +50,13 @@ dockers:
       - linux/amd64
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - go.mod
+      - go.sum
   - image_templates:
       - "phoenixsheppy/mc-router-gui:{{ .Version }}-arm64"
       - "phoenixsheppy/mc-router-gui:latest-arm64"
-    dockerfile: Dockerfile.release
+    dockerfile: Dockerfile.goreleaser
     ids:
       - mc-router-GUI
     goarch: arm64
@@ -63,10 +66,13 @@ dockers:
       - linux/arm64
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - go.mod
+      - go.sum
   - image_templates:
       - "phoenixsheppy/mc-router-gui:{{ .Version }}-arm32v6"
       - "phoenixsheppy/mc-router-gui:latest-arm32v6"
-    dockerfile: Dockerfile.release
+    dockerfile: Dockerfile.goreleaser
     ids:
       - mc-router-GUI
     goarch: arm
@@ -77,10 +83,13 @@ dockers:
       - linux/arm/v6
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - go.mod
+      - go.sum
   - image_templates:
       - "ghcr.io/Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-amd64"
       - "ghcr.io/Phoenix-Net/{{ .ProjectName }}:latest-amd64"
-    dockerfile: Dockerfile.release
+    dockerfile: Dockerfile.goreleaser
     ids:
       - mc-router-GUI
     goarch: amd64
@@ -90,10 +99,13 @@ dockers:
       - linux/amd64
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - go.mod
+      - go.sum
   - image_templates:
       - "ghcr.io/Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-arm64"
       - "ghcr.io/Phoenix-Net/{{ .ProjectName }}:latest-arm64"
-    dockerfile: Dockerfile.release
+    dockerfile: Dockerfile.goreleaser
     ids:
       - mc-router-GUI
     goarch: arm64
@@ -103,10 +115,13 @@ dockers:
       - linux/arm64
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - go.mod
+      - go.sum
   - image_templates:
       - "ghcr.io/Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-arm32v6"
       - "ghcr.io/Phoenix-Net/{{ .ProjectName }}:latest-arm32v6"
-    dockerfile: Dockerfile.release
+    dockerfile: Dockerfile.goreleaser
     ids:
       - mc-router-GUI
     goarch: arm
@@ -117,6 +132,9 @@ dockers:
       - linux/arm/v6
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - go.mod
+      - go.sum
 
 docker_manifests:
   - name_template: "phoenixsheppy/mc-router-gui:{{ .Version }}"
