@@ -15,9 +15,7 @@ version: '3.8'
 
 services:
   mc-router-with-gui:
-    build:
-      context: .
-      dockerfile: web-gui/Dockerfile.integrated
+    image: phoenixsheppy/mc-router-gui:latest
     # Use host networking for better performance and simplified configuration
     # This container runs BOTH mc-router AND the web GUI
     # Services will be available directly on host ports: 25565 (Minecraft), 3000 (GUI), 8080 (API)

@@ -17,9 +17,7 @@ version: '3.8'
 
 services:
   mc-router-with-gui:
-    build:
-      context: .
-      dockerfile: web-gui/Dockerfile.integrated
+    image: phoenixsheppy/mc-router-gui:latest
     # This container runs BOTH mc-router AND the web GUI
     # MC-Router will auto-discover the Minecraft servers below using Docker labels
     network_mode: host
