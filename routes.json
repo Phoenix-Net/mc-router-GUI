@@ -1,0 +1,7 @@
+{
+  "default-server": "localhost:25568",
+  "mappings": {
+    "creative.example.com": "localhost:25568",
+    "survival.example.com": "localhost:25567"
+  }
+}

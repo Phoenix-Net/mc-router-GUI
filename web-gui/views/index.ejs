@@ -7,8 +7,8 @@
     <title>MC-Router GUI</title>
     <link href="/css/output.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='80' height='80' x='10' y='10' rx='8' fill='%2300AA00'/></svg>">
+    <link rel="icon" id="favicon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='80' height='80' x='10' y='10' rx='8' fill='%23<%= routerStatus === 'active' ? '00AA00' : 'FF0000' %>'/></svg>">
 </head>
 
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-200">
@@ -36,16 +36,26 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center">
-                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                        <span class="text-sm text-gray-600 dark:text-gray-300">Router Status: Active</span>
+                        <div id="statusIndicator"
+                            class="w-3 h-3 <%= routerStatus === 'active' ? 'bg-green-500' : 'bg-red-500' %> rounded-full mr-2">
+                        </div>
+                        <span id="statusText" class="text-sm text-gray-600 dark:text-gray-300">Router Status: <%=
+                                routerStatus==='active' ? 'Active' : 'Offline' %></span>
                     </div>
                     <div class="text-sm text-gray-600 dark:text-gray-300">
                         Total Mappings: <span class="font-semibold">
                             <%= mappings.length %>
                         </span>
                     </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        <% if (routerStatus === 'offline') { %>
+                            Routes loaded from config file
+                        <% } else { %>
+                            Routes synced with mc-router
+                        <% } %>
+                    </div>
                 </div>
-                <button onclick="location.reload()" class="btn-secondary text-sm">
+                <button id="refreshBtn" class="btn-secondary text-sm">
                     Refresh
                 </button>
             </div>
@@ -72,19 +82,18 @@
                             <div class="card">
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
-                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white"></h3>
-                                        <%= mapping.hostname %>
-                                            <% if (mapping.is_default) { %>
-                                                <span
-                                                    class="ml-2 px-2 py-1 bg-minecraft-green text-white text-xs rounded">DEFAULT</span>
-                                                <% } %>
-                                                    </h3>
-                                                    <p class="text-gray-600 dark:text-gray-300 mt-1">→ <%=
-                                                            mapping.backend %>
-                                                    </p>
-                                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2"></p>
-                                                    Created: <%= new Date(mapping.created_at).toLocaleDateString() %>
-                                                        </p>
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                            <%= mapping.hostname %>
+                                                <% if (mapping.is_default) { %>
+                                                    <span
+                                                        class="ml-2 px-2 py-1 bg-minecraft-green text-white text-xs rounded">DEFAULT</span>
+                                                    <% } %>
+                                        </h3>
+                                        <p class="text-gray-600 dark:text-gray-300 mt-1">→ <%= mapping.backend %>
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                            Created: <%= new Date(mapping.created_at).toLocaleDateString() %>
+                                        </p>
                                     </div>
                                     <div class="flex space-x-2">
                                         <button data-action="edit" data-mapping-hostname="<%= mapping.hostname %>"
@@ -144,6 +153,54 @@
                         Add Mapping
                     </button>
                     <button type="button" data-modal-close="addMappingModal" class="btn-secondary flex-1">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Mapping Modal -->
+    <div id="editMappingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Server Mapping</h3>
+                <button data-modal-close="editMappingModal"
+                    class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 text-xl font-light">
+                    ✕
+                </button>
+            </div>
+
+            <form id="editMappingForm">
+                <input type="hidden" name="originalHostname" />
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Hostname
+                    </label>
+                    <input type="text" name="hostname" placeholder="e.g., vanilla.example.com" class="input-field"
+                        required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Backend Server
+                    </label>
+                    <input type="text" name="backend" placeholder="e.g., minecraft-server:25565" class="input-field"
+                        required />
+                </div>
+
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="isDefault" class="mr-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Set as default server</span>
+                    </label>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="submit" class="btn-primary flex-1">
+                        Update Mapping
+                    </button>
+                    <button type="button" data-modal-close="editMappingModal" class="btn-secondary flex-1">
                         Cancel
                     </button>
                 </div>
