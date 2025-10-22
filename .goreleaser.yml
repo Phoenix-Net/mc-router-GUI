@@ -38,8 +38,8 @@ archives:
       - README*
 dockers:
   - image_templates:
-      - "Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-amd64"
-      - "Phoenix-Net/{{ .ProjectName }}:latest-amd64"
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-amd64"
+      - "phoenixsheppy/mc-router-gui:latest-amd64"
     dockerfile: Dockerfile.release
     goarch: amd64
     use: buildx
@@ -49,8 +49,8 @@ dockers:
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - image_templates:
-      - "Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-arm64"
-      - "Phoenix-Net/{{ .ProjectName }}:latest-arm64"
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-arm64"
+      - "phoenixsheppy/mc-router-gui:latest-arm64"
     dockerfile: Dockerfile.release
     goarch: arm64
     use: buildx
@@ -60,8 +60,8 @@ dockers:
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - image_templates:
-      - "Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-arm32v6"
-      - "Phoenix-Net/{{ .ProjectName }}:latest-arm32v6"
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-arm32v6"
+      - "phoenixsheppy/mc-router-gui:latest-arm32v6"
     dockerfile: Dockerfile.release
     goarch: arm
     goarm: "6"
@@ -107,16 +107,16 @@ dockers:
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
 
 docker_manifests:
-  - name_template: "Phoenix-Net/{{ .ProjectName }}:{{ .Version }}"
+  - name_template: "phoenixsheppy/mc-router-gui:{{ .Version }}"
     image_templates:
-      - "Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-amd64"
-      - "Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-arm64"
-      - "Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-arm32v6"
-  - name_template: "Phoenix-Net/{{ .ProjectName }}:latest"
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-amd64"
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-arm64"
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-arm32v6"
+  - name_template: "phoenixsheppy/mc-router-gui:latest"
     image_templates:
-      - "Phoenix-Net/{{ .ProjectName }}:latest-amd64"
-      - "Phoenix-Net/{{ .ProjectName }}:latest-arm64"
-      - "Phoenix-Net/{{ .ProjectName }}:latest-arm32v6"
+      - "phoenixsheppy/mc-router-gui:latest-amd64"
+      - "phoenixsheppy/mc-router-gui:latest-arm64"
+      - "phoenixsheppy/mc-router-gui:latest-arm32v6"
   - name_template: "ghcr.io/Phoenix-Net/{{ .ProjectName }}:{{ .Version }}"
     image_templates:
       - "ghcr.io/Phoenix-Net/{{ .ProjectName }}:{{ .Version }}-amd64"
