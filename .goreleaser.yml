@@ -46,7 +46,6 @@ dockers:
     build_flag_templates:
       - --platform
       - linux/amd64
-      - --load
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - image_templates:
@@ -58,7 +57,6 @@ dockers:
     build_flag_templates:
       - --platform
       - linux/arm64
-      - --load
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - image_templates:
@@ -71,7 +69,6 @@ dockers:
     build_flag_templates:
       - --platform
       - linux/arm/v6
-      - --load
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - image_templates:
@@ -83,7 +80,6 @@ dockers:
     build_flag_templates:
       - --platform
       - linux/amd64
-      - --load
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - image_templates:
@@ -95,7 +91,6 @@ dockers:
     build_flag_templates:
       - --platform
       - linux/arm64
-      - --load
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - image_templates:
@@ -108,7 +103,6 @@ dockers:
     build_flag_templates:
       - --platform
       - linux/arm/v6
-      - --load
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
 
