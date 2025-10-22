@@ -1,6 +1,10 @@
 ### New and improved! Now with a Web-GUI!
 
+Management GUI:
+
 <img src="https://raw.githubusercontent.com/Phoenix-Net/mc-router-gui/master/docs/web-ex-01.png" width="750px">
+
+Login GUI:
 
 <img src="https://raw.githubusercontent.com/Phoenix-Net/mc-router-gui/master/docs/web-ex-02.png" width="500px">
 
