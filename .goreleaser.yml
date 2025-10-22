@@ -105,6 +105,29 @@ dockers:
       - linux/arm/v6
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  # Integrated image with web GUI
+  - image_templates:
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-gui-amd64"
+      - "phoenixsheppy/mc-router-gui:gui-latest-amd64"
+    dockerfile: Dockerfile.integrated
+    goarch: amd64
+    use: buildx
+    build_flag_templates:
+      - --platform
+      - linux/amd64
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  - image_templates:
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-gui-arm64"
+      - "phoenixsheppy/mc-router-gui:gui-latest-arm64"
+    dockerfile: Dockerfile.integrated
+    goarch: arm64
+    use: buildx
+    build_flag_templates:
+      - --platform
+      - linux/arm64
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
 
 docker_manifests:
   - name_template: "phoenixsheppy/mc-router-gui:{{ .Version }}"
@@ -127,6 +150,15 @@ docker_manifests:
       - "ghcr.io/phoenix-net/{{ .ProjectName }}:latest-amd64"
       - "ghcr.io/phoenix-net/{{ .ProjectName }}:latest-arm64"
       - "ghcr.io/phoenix-net/{{ .ProjectName }}:latest-arm32v6"
+  # Integrated GUI manifests
+  - name_template: "phoenixsheppy/mc-router-gui:{{ .Version }}-gui"
+    image_templates:
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-gui-amd64"
+      - "phoenixsheppy/mc-router-gui:{{ .Version }}-gui-arm64"
+  - name_template: "phoenixsheppy/mc-router-gui:gui-latest"
+    image_templates:
+      - "phoenixsheppy/mc-router-gui:gui-latest-amd64"
+      - "phoenixsheppy/mc-router-gui:gui-latest-arm64"
 changelog:
   filters:
     exclude:
