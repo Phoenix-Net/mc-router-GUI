@@ -1,10 +1,8 @@
 ### New and improved! Now with a Web-GUI!
 
-<img src="https://raw.githubusercontent.com/Phoenix-Net/mc-router-gui/master/docs/web-ex-01.png" width="500px">
+<img src="https://raw.githubusercontent.com/Phoenix-Net/mc-router-gui/master/docs/web-ex-01.png" width="750px">
 
 <img src="https://raw.githubusercontent.com/Phoenix-Net/mc-router-gui/master/docs/web-ex-02.png" width="500px">
-
-https://raw.githubusercontent.com/Phoenix-Net/mc-router-gui/master/docs/compose-diagram.png 
 
 Routes Minecraft Java Edition client connections to backend servers based upon the requested server address. This is quite helpful for home network deployments where any number of Minecraft servers can be multiplexed onto a single, public IP address and standard Minecraft port. It works great with [itzg/minecraft-server](https://github.com/itzg/docker-minecraft-server), but can be used with any Minecraft server. Stand-alone binaries are also published for Linux, Mac, and Windows if not wanting to use containers at all.
 
