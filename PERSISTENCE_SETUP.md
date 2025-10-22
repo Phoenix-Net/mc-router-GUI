@@ -56,10 +56,45 @@ The `routes.json` file uses this format:
 3. **Backup**: Config file serves as a backup of your routing configuration
 4. **Version Control**: Config file can be committed to git for team sharing
 
+## Authentication
+
+The Web GUI includes simple username/password authentication to protect access to your routing configuration.
+
+### Environment Variables
+
+- `AUTH_USERNAME` - Username for web GUI authentication (default: admin)
+- `AUTH_PASSWORD` - Password for web GUI authentication (default: password)
+- `SESSION_SECRET` - Secret key for session encryption (default: auto-generated)
+
+### Default Credentials
+
+- **Username**: admin
+- **Password**: password
+
+### Customizing Authentication
+
+Set environment variables to customize the login credentials:
+
+```bash
+export AUTH_USERNAME=myusername
+export AUTH_PASSWORD=mysecurepassword
+export SESSION_SECRET=your-secret-key-here
+npm run dev
+```
+
+### Security Features
+
+- **Session Management**: Secure session-based authentication
+- **Protected Routes**: All API endpoints require authentication
+- **Auto-Redirect**: Unauthenticated users are redirected to login
+- **Logout**: Secure logout functionality with session cleanup
+
 ### Example Workflow
 
 1. Start web GUI: `npm run dev`
-2. Add routes through the web interface (works offline)
-3. Start mc-router with config: `./mc-router --routes-config=routes.json`
-4. Routes are automatically loaded and active
-5. Any changes through web GUI are saved to both mc-router and config file
+2. Navigate to `http://localhost:3000` - you'll be redirected to login
+3. Login with your credentials (default: admin/password)
+4. Add routes through the web interface (works offline)
+5. Start mc-router with config: `./mc-router --routes-config=routes.json`
+6. Routes are automatically loaded and active
+7. Any changes through web GUI are saved to both mc-router and config file

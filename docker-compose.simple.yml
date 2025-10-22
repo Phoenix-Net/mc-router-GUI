@@ -6,6 +6,9 @@
 # - Web GUI: http://localhost:3000 (Management interface)
 # - API: http://localhost:8080 (REST API)
 #
+# SECURITY NOTE: Change the default AUTH_USERNAME, AUTH_PASSWORD, and SESSION_SECRET
+# before deploying to production!
+#
 # Usage: docker-compose -f docker-compose.simple.yml up -d
 
 version: '3.8'
@@ -26,6 +29,10 @@ services:
       - MC_ROUTER_API=http://localhost:8080
       - DEBUG=false
       - CONNECTION_RATE_LIMIT=1
+      # Web GUI Authentication
+      - AUTH_USERNAME=admin           # Web GUI username (change this!)
+      - AUTH_PASSWORD=password        # Web GUI password (change this!)
+      - SESSION_SECRET=change-this-secret-key  # Session encryption key (change this!)
       # Example mappings (optional) - uncomment and modify as needed
       # - MAPPING=vanilla.example.com=localhost:25566,forge.example.com=localhost:25567
       # - DEFAULT=localhost:25566

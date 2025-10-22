@@ -21,10 +21,18 @@
                     <p class="text-gray-300 dark:text-gray-400 mt-2">Manage your Minecraft server routing configuration
                     </p>
                 </div>
-                <button id="themeToggle"
-                    class="px-4 py-2 rounded-lg bg-gray-700 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]">
-                    <i id="themeIcon" class="mdi mdi-white-balance-sunny text-lg"></i>
-                </button>
+                <div class="flex space-x-2">
+                    <button id="themeToggle"
+                        class="px-4 py-2 rounded-lg bg-gray-700 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]">
+                        <i id="themeIcon" class="mdi mdi-white-balance-sunny text-lg"></i>
+                    </button>
+                    <form method="POST" action="/logout" class="inline">
+                        <button type="submit"
+                            class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px] text-white">
+                            <i class="mdi mdi-logout text-lg"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </header>

@@ -3,11 +3,25 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs/promises';
+import session from 'express-session';
 
 const app = express();
 const PORT = process.env.GUI_PORT || 3000;
 const MC_ROUTER_API = process.env.MC_ROUTER_API || 'http://localhost:8080';
 const ROUTES_CONFIG_FILE = process.env.ROUTES_CONFIG_FILE || path.join(__dirname, '../../routes.json');
+
+// Authentication config
+const AUTH_USERNAME = process.env.AUTH_USERNAME || 'admin';
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'password';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'mc-router-gui-secret-key';
+
+// Extend session interface
+declare module 'express-session' {
+  interface SessionData {
+    authenticated?: boolean;
+    username?: string;
+  }
+}
 
 // Routes config schema matching mc-router's expected format
 interface RoutesConfig {
@@ -15,10 +29,28 @@ interface RoutesConfig {
   mappings: { [hostname: string]: string };
 }
 
+// Authentication middleware
+function requireAuth(req: Request, res: Response, next: Function) {
+  if (req.session.authenticated) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+}
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true if using HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Set view engine
@@ -68,13 +100,13 @@ async function syncConfigWithMCRouter(): Promise<void> {
     const response = await fetchFromMCRouter('/routes');
     if (response.ok) {
       const routes = await response.json() as { [key: string]: string };
-      
+
       // Read current config
       const config = await readRoutesConfig();
-      
+
       // Update mappings in config
       config.mappings = routes;
-      
+
       // Save updated config
       await writeRoutesConfig(config);
     }
@@ -83,8 +115,37 @@ async function syncConfigWithMCRouter(): Promise<void> {
   }
 }
 
-// Routes
-app.get('/', async (req: Request, res: Response) => {
+// Authentication Routes
+app.get('/login', (req: Request, res: Response) => {
+  if (req.session.authenticated) {
+    return res.redirect('/');
+  }
+  res.render('login', { error: null });
+});
+
+app.post('/login', (req: Request, res: Response) => {
+  const { username, password } = req.body;
+
+  if (username === AUTH_USERNAME && password === AUTH_PASSWORD) {
+    req.session.authenticated = true;
+    req.session.username = username;
+    res.redirect('/');
+  } else {
+    res.render('login', { error: 'Invalid username or password' });
+  }
+});
+
+app.post('/logout', (req: Request, res: Response) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    res.redirect('/login');
+  });
+});
+
+// Protected Routes
+app.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     // Try to fetch mappings from mc-router API first
     const response = await fetchFromMCRouter('/routes');
@@ -100,7 +161,7 @@ app.get('/', async (req: Request, res: Response) => {
         is_default: false // We'll handle default separately
       }));
       routerStatus = 'active';
-      
+
       // Sync with config file when router is active
       await syncConfigWithMCRouter();
     } else {
@@ -132,7 +193,7 @@ app.get('/', async (req: Request, res: Response) => {
 });
 
 // Proxy routes to mc-router API
-app.get('/routes', async (req: Request, res: Response) => {
+app.get('/routes', requireAuth, async (req: Request, res: Response) => {
   try {
     const response = await fetchFromMCRouter('/routes');
     if (response.ok) {
@@ -154,7 +215,7 @@ app.get('/routes', async (req: Request, res: Response) => {
   }
 });
 
-app.post('/routes', async (req: Request, res: Response) => {
+app.post('/routes', requireAuth, async (req: Request, res: Response) => {
   try {
     // Try to add route to mc-router first
     const response = await fetchFromMCRouter('/routes', {
@@ -175,15 +236,15 @@ app.post('/routes', async (req: Request, res: Response) => {
     try {
       const config = await readRoutesConfig();
       const { serverAddress, backend } = req.body;
-      
+
       if (!serverAddress || !backend) {
         return res.status(400).json({ error: 'serverAddress and backend are required' });
       }
-      
+
       config.mappings[serverAddress] = backend;
       await writeRoutesConfig(config);
-      
-      res.status(201).json({ 
+
+      res.status(201).json({
         message: 'Route saved to config file (mc-router offline)',
         note: 'Route will be loaded when mc-router starts with --routes-config flag'
       });
@@ -193,7 +254,7 @@ app.post('/routes', async (req: Request, res: Response) => {
   }
 });
 
-app.delete('/routes/:serverAddress', async (req: Request, res: Response) => {
+app.delete('/routes/:serverAddress', requireAuth, async (req: Request, res: Response) => {
   try {
     const response = await fetchFromMCRouter(`/routes/${encodeURIComponent(req.params.serverAddress)}`, {
       method: 'DELETE'
@@ -211,11 +272,11 @@ app.delete('/routes/:serverAddress', async (req: Request, res: Response) => {
     try {
       const config = await readRoutesConfig();
       const serverAddress = req.params.serverAddress;
-      
+
       if (config.mappings[serverAddress]) {
         delete config.mappings[serverAddress];
         await writeRoutesConfig(config);
-        res.json({ 
+        res.json({
           message: 'Route deleted from config file (mc-router offline)',
           note: 'Changes will be applied when mc-router starts with --routes-config flag'
         });
@@ -228,7 +289,7 @@ app.delete('/routes/:serverAddress', async (req: Request, res: Response) => {
   }
 });
 
-app.post('/defaultRoute', async (req: Request, res: Response) => {
+app.post('/defaultRoute', requireAuth, async (req: Request, res: Response) => {
   try {
     const response = await fetchFromMCRouter('/defaultRoute', {
       method: 'POST',
@@ -251,7 +312,7 @@ app.post('/defaultRoute', async (req: Request, res: Response) => {
       const config = await readRoutesConfig();
       config['default-server'] = req.body.backend || '';
       await writeRoutesConfig(config);
-      res.json({ 
+      res.json({
         message: 'Default route saved to config file (mc-router offline)',
         note: 'Route will be loaded when mc-router starts with --routes-config flag'
       });
@@ -262,7 +323,7 @@ app.post('/defaultRoute', async (req: Request, res: Response) => {
 });
 
 // Router status check
-app.get('/status', async (req: Request, res: Response) => {
+app.get('/status', requireAuth, async (req: Request, res: Response) => {
   try {
     const response = await fetchFromMCRouter('/routes');
     if (response.ok) {
@@ -276,7 +337,7 @@ app.get('/status', async (req: Request, res: Response) => {
 });
 
 // Config info endpoint
-app.get('/config', async (req: Request, res: Response) => {
+app.get('/config', requireAuth, async (req: Request, res: Response) => {
   try {
     const config = await readRoutesConfig();
     res.json({
