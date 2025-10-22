@@ -2,10 +2,17 @@
 FROM node:18-alpine AS web-builder
 
 WORKDIR /web-gui
+
+# Copy package files first (if they exist)
 COPY web-gui/package*.json ./
+
+# Install dependencies
 RUN npm ci --only=production
 
+# Copy the rest of the web-gui directory
 COPY web-gui/ ./
+
+# Build the web GUI
 RUN npm run build && npm run build-css-prod
 
 # Final stage
@@ -19,15 +26,15 @@ WORKDIR /app
 # Copy mc-router binary (provided by GoReleaser)
 COPY mc-router /usr/local/bin/mc-router
 
-# Copy web GUI
+# Copy web GUI built files
 COPY --from=web-builder /web-gui/dist ./web-gui/dist
 COPY --from=web-builder /web-gui/views ./web-gui/views
 COPY --from=web-builder /web-gui/public ./web-gui/public
 COPY --from=web-builder /web-gui/package*.json ./web-gui/
 COPY --from=web-builder /web-gui/node_modules ./web-gui/node_modules
 
-# Create startup script
-COPY web-gui/start.sh /start.sh
+# Copy startup script
+COPY --from=web-builder /web-gui/start.sh /start.sh
 RUN chmod +x /start.sh
 
 # Set environment variables

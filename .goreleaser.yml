@@ -117,6 +117,8 @@ dockers:
       - linux/amd64
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - web-gui/
   - image_templates:
       - "phoenixsheppy/mc-router-gui:{{ .Version }}-gui-arm64"
       - "phoenixsheppy/mc-router-gui:gui-latest-arm64"
@@ -128,6 +130,8 @@ dockers:
       - linux/arm64
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    extra_files:
+      - web-gui/
 
 docker_manifests:
   - name_template: "phoenixsheppy/mc-router-gui:{{ .Version }}"
