@@ -6,8 +6,8 @@ WORKDIR /web-gui
 # Copy package files first (if they exist)
 COPY web-gui/package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci
 
 # Copy the rest of the web-gui directory
 COPY web-gui/ ./
