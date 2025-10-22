@@ -23,6 +23,77 @@ Some other features included:
 
 ## Usage
 
+## Web GUI
+
+MC-Router includes an optional web-based GUI for managing server mappings and configuration through a modern web interface. The GUI connects directly to mc-router's REST API and provides real-time configuration management.
+
+### Features
+
+- 🎮 **Modern Web Interface**: Clean, responsive UI built with Tailwind CSS
+- 🔄 **Real-time Configuration**: Changes are applied immediately to mc-router via REST API
+- 🐳 **Docker Integration**: Runs alongside mc-router in the same container
+- 📊 **Server Management**: Add, edit, and delete server mappings through the web interface
+- 🚀 **Direct API Integration**: Connects directly to mc-router's built-in REST API
+- 💾 **No Database Required**: Uses mc-router's in-memory configuration
+
+### Quick Start with Web GUI
+
+#### Using Docker Compose (Integrated)
+
+```bash
+# Simple deployment - runs MC-Router + Web GUI in one container
+docker-compose -f docker-compose.simple.yml up -d
+
+# Full deployment - includes example Minecraft servers with auto-discovery
+docker-compose -f docker-compose.gui.and.server.yml up -d
+```
+
+**Both deployments start:**
+- **MC-Router** on port 25565 (Minecraft connections)
+- **Web GUI** on port 3000 (management interface)
+- **REST API** on port 8080 (for GUI and external integrations)
+
+The integrated container runs both mc-router and the web GUI using a single Docker service.
+
+**Host Networking Benefits:**
+- **No Port Mapping**: Services bind directly to host network interfaces
+- **Better Performance**: Eliminates Docker's network translation overhead  
+- **Simplified Configuration**: No need to manage port conflicts or mappings
+- **Native Network Access**: Full access to host networking features
+
+#### Manual Installation
+
+```bash
+# Navigate to web-gui directory
+cd web-gui
+
+# Install dependencies
+npm install
+
+# Build the application
+npm run build
+npm run build-css-prod
+
+# Start mc-router with API enabled
+mc-router -api-binding 0.0.0.0:8080 &
+
+# Start the web GUI
+npm start
+```
+
+Access the web GUI at `http://localhost:3000`
+
+### Web GUI Configuration
+
+The GUI can be configured through environment variables:
+
+- `GUI_PORT`: Port for the web interface (default: 3000)
+- `MC_ROUTER_API`: URL of the mc-router API (default: http://localhost:8080)
+
+**Note**: The web GUI requires mc-router to be started with the `-api-binding` flag to enable the REST API.
+
+## Command Argument Usage
+
 ```text
   -api-binding host:port
     	The host:port bound for servicing API requests (env API_BINDING)
@@ -112,101 +183,35 @@ Some other features included:
 
 The [multi-architecture image published at Docker Hub](https://hub.docker.com/repository/docker/itzg/mc-router) supports amd64, arm64, and arm32v6 (i.e. RaspberryPi).
 
-## Web GUI
-
-MC-Router includes an optional web-based GUI for managing server mappings and configuration through a modern web interface. The GUI connects directly to mc-router's REST API and provides real-time configuration management.
-
-### Features
-
-- 🎮 **Modern Web Interface**: Clean, responsive UI built with Tailwind CSS
-- 🔄 **Real-time Configuration**: Changes are applied immediately to mc-router via REST API
-- 🐳 **Docker Integration**: Runs alongside mc-router in the same container
-- 📊 **Server Management**: Add, edit, and delete server mappings through the web interface
-- 🚀 **Direct API Integration**: Connects directly to mc-router's built-in REST API
-- 💾 **No Database Required**: Uses mc-router's in-memory configuration
-
-### Quick Start with Web GUI
-
-#### Using Docker Compose (Integrated)
-
-```bash
-# Simple deployment - runs MC-Router + Web GUI in one container
-docker-compose -f docker-compose.simple.yml up -d
-
-# Full deployment - includes example Minecraft servers with auto-discovery
-docker-compose -f docker-compose.gui.yml up -d
-```
-
-**Both deployments start:**
-- **MC-Router** on port 25565 (Minecraft connections)
-- **Web GUI** on port 3000 (management interface)
-- **REST API** on port 8080 (for GUI and external integrations)
-
-The integrated container runs both mc-router and the web GUI using a single Docker service.
-
-**Host Networking Benefits:**
-- **No Port Mapping**: Services bind directly to host network interfaces
-- **Better Performance**: Eliminates Docker's network translation overhead  
-- **Simplified Configuration**: No need to manage port conflicts or mappings
-- **Native Network Access**: Full access to host networking features
-
-#### Manual Installation
-
-```bash
-# Navigate to web-gui directory
-cd web-gui
-
-# Install dependencies
-npm install
-
-# Build the application
-npm run build
-npm run build-css-prod
-
-# Start mc-router with API enabled
-mc-router -api-binding 0.0.0.0:8080 &
-
-# Start the web GUI
-npm start
-```
-
-Access the web GUI at `http://localhost:3000`
-
-### Web GUI Configuration
-
-The GUI can be configured through environment variables:
-
-- `GUI_PORT`: Port for the web interface (default: 3000)
-- `MC_ROUTER_API`: URL of the mc-router API (default: http://localhost:8080)
-
-**Note**: The web GUI requires mc-router to be started with the `-api-binding` flag to enable the REST API.
-
 ## Docker Compose Usage
 
 The diagram below shows how this `docker-compose.yml` configures two Minecraft server services named `vanilla` and `forge`, which also become the internal network aliases. _Notice those services don't need their ports exposed since the internal networking allows for the inter-container access._
 
 ```yaml
 services:
-  vanilla:
-    image: itzg/minecraft-server
+  mc-router-with-gui:
+    image: phoenixsheppy/mc-router-gui:gui-latest
+    # Use host networking for better performance and simplified configuration
+    # This container runs BOTH mc-router AND the web GUI
+    # Services will be available directly on host ports: 25565 (Minecraft), 3000 (GUI), 8080 (API)
+    network_mode: host
     environment:
-      EULA: "TRUE"
-  forge:
-    image: itzg/minecraft-server
-    environment:
-      EULA: "TRUE"
-      TYPE: FORGE
-  router:
-    image: ${MC_ROUTER_IMAGE:-itzg/mc-router}
-    depends_on:
-      - forge
-      - vanilla
-    environment:
-      MAPPING: |
-        vanilla.example.com=vanilla:25565
-        forge.example.com=forge:25565
-    ports:
-      - "25565:25565"
+      - PORT=25565                    # MC-Router Minecraft port
+      - GUI_PORT=3000                 # Web GUI port
+      - API_BINDING=0.0.0.0:8080      # MC-Router API port
+      - MC_ROUTER_API=http://localhost:8080
+      - DEBUG=false
+      - CONNECTION_RATE_LIMIT=1
+      # Web GUI Authentication
+      - AUTH_USERNAME=admin           # Web GUI username (change this!)
+      - AUTH_PASSWORD=password        # Web GUI password (change this!)
+      - SESSION_SECRET=change-this-secret-key  # Session encryption key (change this!)
+      # Example mappings (optional) - uncomment and modify as needed
+      # - MAPPING=vanilla.example.com=localhost:25566,forge.example.com=localhost:25567
+      # - DEFAULT=localhost:25566
+    volumes:
+      - ./web-gui/data:/data
+    restart: unless-stopped
 ```
 
 The `router` service is only one of the services that needs to exposed on the external network. The `MAPPING` declares how the hostname users will enter into their Minecraft client will map to the internal services.
