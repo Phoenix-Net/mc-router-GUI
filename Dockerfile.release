@@ -6,7 +6,7 @@ FROM scratch
 
 LABEL org.opencontainers.image.authors="Phoenix J. Shepherd <phoenix@phoenixnet-labs.com>"
 LABEL org.opencontainers.image.title="mc-router-gui"
-LABEL org.opencontainers.image.source="https://github.com/Phoenix-Net/mc-router"
+LABEL org.opencontainers.image.source="https://github.com/Phoenix-Net/mc-router-gui"
 
 COPY --from=certs /etc/ssl/certs/ /etc/ssl/certs
 COPY mc-router /
