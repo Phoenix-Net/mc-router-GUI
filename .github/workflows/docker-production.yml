@@ -42,7 +42,7 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            itzg/mc-router
+            Phoenix-Net/mc-router
           tags: |
             type=ref,event=tag
             type=semver,pattern={{version}}
