@@ -32,6 +32,9 @@ services:
       - IN_DOCKER=true                # Enable Docker service discovery
       - DEBUG=false
       - CONNECTION_RATE_LIMIT=1
+      # Persistence - save routes.json to persistent volume
+      - ROUTES_CONFIG_FILE=/data/routes.json  # Web GUI config file location
+      - ROUTES_CONFIG=/data/routes.json       # MC-Router config file location
       # Web GUI Authentication
       - AUTH_USERNAME=admin           # Web GUI username (change this!)
       - AUTH_PASSWORD=password        # Web GUI password (change this!)
